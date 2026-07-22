@@ -17,5 +17,4 @@ export const APP = {
   company: '드림시큐리티',
   service: 'Dream Store',
   serviceKo: '드림 스토어',
-  quarter: '2026년 3분기',
 };
