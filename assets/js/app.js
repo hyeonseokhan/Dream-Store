@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { APP } from './config.js';
-import { CATEGORIES, TYPES, AGENTS, ORIGINS, TASK_TYPES, CURRENT_USER } from './seed.js';
+import { CATEGORIES, TYPES, AGENTS, ORIGINS, TASK_TYPES, IMPACT_TYPES, CURRENT_USER } from './seed.js';
 import * as db from './store.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -20,6 +20,8 @@ const catOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[0];
 const typeOf = (id) => TYPES.find((t) => t.id === id) || { label: id };
 const originOf = (id) => ORIGINS.find((o) => o.id === id) || { label: id, icon: '' };
 const agentLabel = (id) => (AGENTS.find((a) => a.id === id) || { label: id }).label;
+// 과거 후기에는 impact 값이 없으므로 시간 절감으로 간주한다.
+const impactOf = (id) => IMPACT_TYPES.find((x) => x.id === id) || IMPACT_TYPES[0];
 
 function starHtml(rating) {
   const full = Math.round(Number(rating));
@@ -101,28 +103,27 @@ function viewHome() {
   return `
   <section class="hero">
     <div class="wrap hero-in">
-      <span class="hero-tag">🏆 ${esc(APP.quarter)} AI 활용 우수자 시상 진행 중</span>
       <h1>동료가 만든 AI 도구를 설치하면,<br>내 업무도 <em>그만큼 빨라집니다.</em></h1>
       <p>${esc(APP.company)} 임직원이 직접 만들고 발굴한 AI 도구를 한곳에서.
-         설치하고, 써보고, 평가하세요. 그 평가가 곧 우수 활용자 선정의 근거가 됩니다.</p>
+         설치하고, 써보고, 후기를 남기세요. 그 후기가 다음 사람의 선택을 돕습니다.</p>
 
       <div class="counter">
-        <div class="kpi kpi-lead">
+        <div class="kpi kpi-lead" data-icon="⏱">
           <div class="kpi-k">전사 월 절감 시간</div>
           <div class="kpi-v"><span id="cnt-hours">0</span><span class="kpi-u">시간</span></div>
           <div class="kpi-note">업무일 기준 약 ${nf(t.savedDays)}일 · 후기 데이터 집계</div>
         </div>
-        <div class="kpi">
+        <div class="kpi" data-icon="🧰">
           <div class="kpi-k">등록된 도구</div>
           <div class="kpi-v">${nf(t.tools)}<span class="kpi-u">개</span></div>
           <div class="kpi-note">기여자 ${nf(t.contributors)}명</div>
         </div>
-        <div class="kpi">
+        <div class="kpi" data-icon="⬇️">
           <div class="kpi-k">누적 설치</div>
           <div class="kpi-v">${nf(t.installs)}<span class="kpi-u">건</span></div>
           <div class="kpi-note">임직원 약 200명 대상</div>
         </div>
-        <div class="kpi">
+        <div class="kpi" data-icon="📝">
           <div class="kpi-k">등록된 후기</div>
           <div class="kpi-v">${nf(t.reviews)}<span class="kpi-u">건</span></div>
           <div class="kpi-note">구조화 평가 양식</div>
@@ -135,7 +136,6 @@ function viewHome() {
     <section class="sec">
       <div class="sec-hd">
         <h2>직무별로 찾아보기</h2>
-        <p>내 업무에 바로 쓸 수 있는 것부터</p>
       </div>
       <div class="cats">
         ${CATEGORIES.filter((c) => c.id !== 'all')
@@ -151,7 +151,6 @@ function viewHome() {
     <section class="sec">
       <div class="sec-hd">
         <h2>이 주의 인기 도구</h2>
-        <p>설치 후 실제로 계속 쓰이는 도구</p>
         <a class="more" href="#/store?sort=popular">전체 보기 →</a>
       </div>
       <div class="grid">${popular.map(cardHtml).join('')}</div>
@@ -160,7 +159,6 @@ function viewHome() {
     <section class="sec">
       <div class="sec-hd">
         <h2>새로 등록된 도구</h2>
-        <p>동료들이 방금 올린 것들</p>
         <a class="more" href="#/store?sort=new">전체 보기 →</a>
       </div>
       <div class="grid">${fresh.map(cardHtml).join('')}</div>
@@ -168,21 +166,12 @@ function viewHome() {
 
     <section class="sec">
       <div class="sec-hd">
-        <h2>${esc(APP.quarter)} 시상 후보 TOP 5</h2>
-        <p>사용 실적 40 · 동료 평가 30 · 거버넌스 심사 30</p>
+        <h2>많이 쓰는 도구 TOP 5</h2>
+        <a class="more" href="#/store?sort=popular">전체 보기 →</a>
       </div>
       <div class="rank">
         ${top5.map((r, i) => rankRowHtml(r, i)).join('')}
       </div>
-      <div class="legend" style="margin-top:14px">
-        <span><i class="dot rseg-1"></i> 사용 실적 (재사용률·활성 사용자·설치)</span>
-        <span><i class="dot rseg-2"></i> 동료 평가 (평점·절감 시간)</span>
-        <span><i class="dot rseg-3"></i> 거버넌스 심사 (독창성·기여도·확산성)</span>
-      </div>
-      <p class="muted" style="font-size:12.5px;margin-top:12px">
-        단일 지표로는 평가가 왜곡될 수 있어, 조작이 어려운 사용 실적을 중심에 두고
-        운영위원회 심사를 최종 방어막으로 둡니다.
-      </p>
     </section>
   </div>`;
 }
@@ -192,21 +181,21 @@ AFTER.home = () => {
   if (node) countUp(node, db.totals().savedHours);
 };
 
-function rankRowHtml({ tool, score }, i) {
-  const seg = (v, cls) => `<i class="rseg ${cls}" style="width:${Math.max(3, v * 2.6)}px"></i>`;
+function rankRowHtml({ tool }, i) {
   return `
   <div class="rrow" onclick="location.hash='#/tool/${tool.id}'">
-    <div class="medal">${i + 1}</div>
+    <div class="rnum">${i + 1}</div>
     <div class="ticon" style="width:38px;height:38px;font-size:19px;border-radius:10px">${tool.icon}</div>
     <div>
       <div class="rname">${esc(tool.name)}</div>
       <div class="rauth">${esc(tool.author.name)} · ${esc(tool.author.dept)} ·
         ${originOf(tool.origin).label}</div>
     </div>
-    <div class="rbars">
-      ${seg(score.usage, 'rseg-1')}${seg(score.peer, 'rseg-2')}${seg(score.gov, 'rseg-3')}
+    <div class="rstat">
+      ${starHtml(tool.rating)}
+      <b>${tool.rating ? Number(tool.rating).toFixed(1) : '–'}</b>
+      <span class="muted">· 설치 ${nf(tool.installs)}</span>
     </div>
-    <div class="rtotal">${score.total}</div>
   </div>`;
 }
 
@@ -232,7 +221,7 @@ function cardHtml(t) {
     <div class="tfoot">
       <span>${starHtml(t.rating)} <b>${t.rating ? Number(t.rating).toFixed(1) : '–'}</b></span>
       <span>설치 <b>${nf(t.installs)}</b></span>
-      <span class="right">월 <b>${nf(t.savedHours)}시간</b> 절감</span>
+      <span class="right">재사용 <b>${Math.round(t.reuse * 100)}%</b></span>
     </div>
   </article>`;
 }
@@ -275,7 +264,6 @@ function viewStore({ q }) {
     <section class="sec" style="margin-top:34px">
       <div class="sec-hd">
         <h2>도구 둘러보기</h2>
-        <p>총 ${db.getTools().length}개 등록 · 직무와 에이전트로 좁혀보세요</p>
         <a class="more" href="#/submit">＋ 내 도구 등록하기</a>
       </div>
 
@@ -371,7 +359,6 @@ function viewTool({ id }) {
   if (!t) return notFound();
 
   const reviews = db.getReviews(t.id);
-  const score = db.scoreOf(t);
   const installed = db.isInstalled(t.id);
   const o = originOf(t.origin);
 
@@ -449,27 +436,13 @@ function viewTool({ id }) {
             <div class="srow"><span class="k">월 활성</span>
               <div class="bar"><i style="width:${pct(t.mau, maxOf('mau'))}%"></i></div>
               <span class="v">${nf(t.mau)}명</span></div>
-            <div class="srow"><span class="k">월 절감</span>
-              <div class="bar"><i style="width:${pct(t.savedHours, maxOf('savedHours'))}%"></i></div>
-              <span class="v">${nf(t.savedHours)}시간</span></div>
-          </div>
-        </div>
-
-        <div class="card panel">
-          <h3>🏆 시상 종합 점수</h3>
-          <div style="font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.1">
-            ${score.total}<span style="font-size:15px;color:var(--ink-3)"> / 100</span>
-          </div>
-          <div class="stat-rows" style="margin-top:14px">
-            <div class="srow"><span class="k">사용 실적</span>
-              <div class="bar"><i style="width:${(score.usage / 40) * 100}%"></i></div>
-              <span class="v">${score.usage}/40</span></div>
-            <div class="srow"><span class="k">동료 평가</span>
-              <div class="bar"><i style="width:${(score.peer / 30) * 100}%"></i></div>
-              <span class="v">${score.peer}/30</span></div>
-            <div class="srow"><span class="k">거버넌스</span>
-              <div class="bar"><i style="width:${(score.gov / 30) * 100}%"></i></div>
-              <span class="v">${score.gov}/30</span></div>
+            ${
+              t.savedHours > 0
+                ? `<div class="srow"><span class="k">월 절감</span>
+                     <div class="bar"><i style="width:${pct(t.savedHours, maxOf('savedHours'))}%"></i></div>
+                     <span class="v">${nf(t.savedHours)}시간</span></div>`
+                : ''
+            }
           </div>
         </div>
 
@@ -496,6 +469,15 @@ const pct = (v, max) => Math.round((v / max) * 100);
 
 function revHtml(r) {
   const saved = r.savedMin ?? 0;
+  const im = impactOf(r.impact);
+  // 시간 절감 후기만 정량 수치를 함께 보여준다.
+  const timeFacts =
+    r.impact === 'time' && saved > 0
+      ? `<span class="fact">${nf(r.beforeMin)}분 → ${nf(r.afterMin)}분</span>
+         <span class="fact">월 ${nf(r.freqMonth)}회</span>
+         <span class="fact">월 <b>${(saved / 60).toFixed(1)}시간</b> 절감</span>`
+      : '';
+
   return `
   <div class="rev">
     <div class="rev-hd">
@@ -508,9 +490,8 @@ function revHtml(r) {
     <div class="rev-body">${esc(r.comment)}</div>
     <div class="rev-facts">
       <span class="fact">${esc(r.taskType)}</span>
-      <span class="fact">${nf(r.beforeMin)}분 → ${nf(r.afterMin)}분</span>
-      <span class="fact">월 ${nf(r.freqMonth)}회</span>
-      <span class="fact">월 <b>${(saved / 60).toFixed(1)}시간</b> 절감</span>
+      <span class="fact fact-impact">${im.icon} ${esc(im.label)}</span>
+      ${timeFacts}
     </div>
   </div>`;
 }
@@ -544,7 +525,7 @@ function viewReview({ id }) {
       <div class="dicon" style="width:58px;height:58px;font-size:28px;border-radius:15px">${t.icon}</div>
       <div>
         <h1 style="font-size:22px">${esc(t.name)} 사용 후기</h1>
-        <p class="ttag">얼마나 시간을 아꼈는지 알려주세요. 전사 절감 시간에 바로 반영됩니다.</p>
+        <p class="ttag">이 도구가 어떻게 도움이 됐는지 알려주세요. 다음 사람의 선택에 그대로 쓰입니다.</p>
       </div>
     </div>
 
@@ -564,32 +545,45 @@ function viewReview({ id }) {
           </div>
         </div>
 
-        <div class="fgrid">
-          <div class="frow">
-            <label>도입 전 소요 시간</label>
-            <input type="number" id="before" min="0" step="5" value="60">
-            <span class="hint">1회당 분</span>
+        <div class="frow">
+          <label>어떤 점이 좋았나요?</label>
+          <div class="picks" id="impact">
+            ${IMPACT_TYPES.map(
+              (x, i) => `<button type="button" class="pick${i === 0 ? ' on' : ''}" data-v="${x.id}"
+                           title="${esc(x.hint)}">${x.icon} ${esc(x.label)}</button>`,
+            ).join('')}
           </div>
-          <div class="frow">
-            <label>도입 후 소요 시간</label>
-            <input type="number" id="after" min="0" step="5" value="15">
-            <span class="hint">1회당 분</span>
-          </div>
-          <div class="frow">
-            <label>월 사용 빈도</label>
-            <input type="number" id="freq" min="1" step="1" value="8">
-            <span class="hint">회 / 월</span>
-          </div>
+          <span class="hint" id="impact-hint">${esc(IMPACT_TYPES[0].detail)}</span>
         </div>
 
-        <div class="calc">
-          <div>
-            <div class="calc-k">이 도구로 아끼는 시간</div>
-            <div class="calc-v"><span id="calc">6.0</span>시간 / 월</div>
+        <div id="time-block">
+          <div class="fgrid">
+            <div class="frow">
+              <label>도입 전 소요 시간</label>
+              <input type="number" id="before" min="0" step="5" value="60">
+              <span class="hint">1회당 분</span>
+            </div>
+            <div class="frow">
+              <label>도입 후 소요 시간</label>
+              <input type="number" id="after" min="0" step="5" value="15">
+              <span class="hint">1회당 분</span>
+            </div>
+            <div class="frow">
+              <label>월 사용 빈도</label>
+              <input type="number" id="freq" min="1" step="1" value="8">
+              <span class="hint">회 / 월</span>
+            </div>
           </div>
-          <div class="calc-note">
-            (도입 전 − 도입 후) × 월 빈도 로 자동 계산됩니다.
-            입력값은 전사 절감 시간 집계에 그대로 반영됩니다.
+
+          <div class="calc" style="margin-top:18px">
+            <div>
+              <div class="calc-k">이 도구로 아끼는 시간</div>
+              <div class="calc-v"><span id="calc">6.0</span>시간 / 월</div>
+            </div>
+            <div class="calc-note">
+              (도입 전 − 도입 후) × 월 빈도 로 자동 계산됩니다.
+              입력값은 전사 절감 시간 집계에 그대로 반영됩니다.
+            </div>
           </div>
         </div>
 
@@ -610,6 +604,7 @@ function viewReview({ id }) {
 AFTER.review = ({ id }) => {
   let rating = 5;
   let task = TASK_TYPES[0];
+  let impact = IMPACT_TYPES[0].id;
 
   const paint = () => {
     document.querySelectorAll('#rate button').forEach((b) => {
@@ -630,6 +625,23 @@ AFTER.review = ({ id }) => {
     });
   });
 
+  // 시간 절감을 고른 경우에만 정량 입력을 받는다.
+  const syncImpact = () => {
+    const meta = IMPACT_TYPES.find((x) => x.id === impact);
+    $('#time-block').hidden = impact !== 'time';
+    $('#impact-hint').textContent = meta.detail;
+  };
+
+  document.querySelectorAll('#impact .pick').forEach((b) => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#impact .pick').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      impact = b.dataset.v;
+      syncImpact();
+    });
+  });
+  syncImpact();
+
   const recalc = () => {
     const before = Number($('#before').value || 0);
     const after = Number($('#after').value || 0);
@@ -641,19 +653,28 @@ AFTER.review = ({ id }) => {
   recalc();
 
   $('#submit')?.addEventListener('click', async () => {
-    const before = Number($('#before').value || 0);
-    const after = Number($('#after').value || 0);
-    const freq = Number($('#freq').value || 0);
-    if (after > before) return toast('도입 후 시간이 도입 전보다 클 수 없습니다');
-    if (freq < 1) return toast('월 사용 빈도를 1회 이상으로 입력해주세요');
+    const isTime = impact === 'time';
+    const before = isTime ? Number($('#before').value || 0) : 0;
+    const after = isTime ? Number($('#after').value || 0) : 0;
+    const freq = isTime ? Number($('#freq').value || 0) : 0;
+
+    if (isTime) {
+      if (after > before) return toast('도입 후 시간이 도입 전보다 클 수 없습니다');
+      if (freq < 1) return toast('월 사용 빈도를 1회 이상으로 입력해주세요');
+    }
 
     await db.addReview({
-      toolId: id, author: CURRENT_USER, rating, taskType: task,
+      toolId: id, author: CURRENT_USER, rating, taskType: task, impact,
       beforeMin: before, afterMin: after, freqMonth: freq,
       comment: $('#comment').value.trim() || '업무에 도움이 되었습니다.',
     });
-    const saved = ((before - after) * freq / 60).toFixed(1);
-    toast(`후기 등록 완료 — 월 ${saved}시간이 전사 집계에 반영됐습니다`);
+
+    if (isTime) {
+      const saved = ((before - after) * freq / 60).toFixed(1);
+      toast(`후기 등록 완료 — 월 ${saved}시간이 전사 집계에 반영됐습니다`);
+    } else {
+      toast('후기 등록 완료 — 소중한 의견 감사합니다');
+    }
     location.hash = `#/tool/${id}`;
   });
 };
@@ -680,8 +701,8 @@ function viewSubmit() {
         <button type="button" class="pick" data-v="curate">🔍 큐레이션 — 써보고 검증한 오픈소스</button>
       </div>
       <p class="muted" style="font-size:12.5px;margin-top:12px">
-        두 트랙은 <b>시상이 분리</b>되어 있습니다. 개발 역량이 없어도 좋은 도구를 발굴해 공유하면
-        <b>베스트 스카우트</b> 후보가 됩니다. 단, 큐레이션은 실제 사내 적용 사례 기재가 필수입니다.
+        개발 역량이 없어도 괜찮습니다. 써보고 좋았던 도구를 발굴해 공유하는 것만으로 충분합니다.
+        단, 큐레이션은 실제 사내 적용 사례 기재가 필수입니다.
       </p>
     </div>
 
@@ -732,7 +753,7 @@ function viewSubmit() {
 
         <div class="frow">
           <label>사용 사례 <span style="color:var(--brand-600)">· 필수</span></label>
-          <textarea id="useCase" placeholder="어떤 업무에 썼고, 도입 전후로 무엇이 달라졌는지 구체적으로 적어주세요. 이 항목이 다른 임직원의 설치 결정과 거버넌스 심사에 가장 큰 영향을 줍니다."></textarea>
+          <textarea id="useCase" placeholder="어떤 업무에 썼고, 도입 전후로 무엇이 달라졌는지 구체적으로 적어주세요. 이 항목이 다른 임직원의 설치 결정에 가장 큰 영향을 줍니다."></textarea>
         </div>
 
         <div class="frow">

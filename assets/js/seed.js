@@ -31,6 +31,39 @@ export const ORIGINS = [
   { id: 'curate', label: '큐레이션', icon: '🔍' },
 ];
 
+// 도구가 주는 이득의 종류. 모든 도구가 "반복 업무 시간"을 줄여주는 것은 아니라서
+// (예: 토큰 사용량을 줄이는 MCP, 품질을 올려주는 리뷰 Skill) 후기 작성자가 직접 고릅니다.
+export const IMPACT_TYPES = [
+  {
+    id: 'time',
+    label: '시간 절감',
+    icon: '⏱',
+    hint: '같은 일을 더 빨리 끝내게 됨',
+    detail: '아낀 시간을 입력하면 전사 절감 시간 집계에 반영됩니다.',
+  },
+  {
+    id: 'token',
+    label: '토큰·비용 절감',
+    icon: '🪙',
+    hint: '같은 결과를 더 적은 토큰으로',
+    detail: '컨텍스트를 아끼거나 재시도를 줄여주는 도구입니다.',
+  },
+  {
+    id: 'quality',
+    label: '품질 향상',
+    icon: '🎯',
+    hint: '결과물의 정확도·완성도가 올라감',
+    detail: '놓치던 것을 잡아주거나 일관된 산출물을 만들어 줍니다.',
+  },
+  {
+    id: 'possible',
+    label: '새로운 시도',
+    icon: '✨',
+    hint: '이전에는 못 하던 일을 하게 됨',
+    detail: '시간 문제가 아니라, 아예 불가능하던 작업을 가능하게 합니다.',
+  },
+];
+
 export const TASK_TYPES = [
   '문서 작성',
   '데이터 분석',
@@ -443,4 +476,12 @@ export const REVIEWS = [
   { toolId: 'filesystem-mcp', author: { name: '오세준', dept: '보안진단본부' }, rating: 4, taskType: '리서치', beforeMin: 90, afterMin: 25, freqMonth: 6, comment: '접근 경로를 제한할 수 있는 점이 좋습니다. 범위를 좁혀 쓰는 걸 권합니다.', createdAt: '2026-06-29' },
   { toolId: 'slack-mcp', author: { name: '정우진', dept: '플랫폼개발팀' }, rating: 4, taskType: '기타', beforeMin: 60, afterMin: 15, freqMonth: 4, comment: '휴가 복귀 다음 날 아침이 편해졌습니다.', createdAt: '2026-06-27' },
   { toolId: 'budget-skill', author: { name: '윤소라', dept: '전략기획팀' }, rating: 5, taskType: '데이터 분석', beforeMin: 180, afterMin: 40, freqMonth: 2, comment: '이상 항목을 먼저 보여주니 검토 순서가 잡힙니다.', createdAt: '2026-06-25' },
+
+  // 시간 절감으로 환산되지 않는 이득 — 토큰 절감 · 품질 향상 · 새로운 시도
+  { toolId: 'context7-mcp', author: { name: '정우진', dept: '플랫폼개발팀' }, rating: 5, taskType: '코드 작성·리뷰', impact: 'token', comment: '최신 문서를 그때그때 가져오니 옛 버전 API로 답하는 일이 없어졌습니다. 문서를 통째로 붙여넣던 습관이 사라져 컨텍스트가 훨씬 여유롭습니다.', createdAt: '2026-07-18' },
+  { toolId: 'memory-mcp', author: { name: '문가영', dept: '서비스개발2팀' }, rating: 4, taskType: '기타', impact: 'token', comment: '매번 프로젝트 배경을 다시 설명하지 않아도 됩니다. 대화 시작 비용이 확실히 줄었어요.', createdAt: '2026-07-16' },
+  { toolId: 'seq-thinking-mcp', author: { name: '서지호', dept: '품질보증팀' }, rating: 4, taskType: '리서치', impact: 'quality', comment: '복잡한 원인 분석에서 단계를 건너뛰지 않습니다. 빨라지진 않지만 결론을 믿을 수 있게 됐습니다.', createdAt: '2026-07-15' },
+  { toolId: 'code-review-skill', author: { name: '정우진', dept: '플랫폼개발팀' }, rating: 5, taskType: '코드 작성·리뷰', impact: 'quality', comment: '리뷰 시간이 줄었다기보다, 놓치던 예외 처리를 잡아줍니다. 배포 후 롤백이 줄었어요.', createdAt: '2026-07-14' },
+  { toolId: 'playwright-mcp', author: { name: '한지우', dept: '인재개발팀' }, rating: 5, taskType: '기타', impact: 'possible', comment: '개발자가 아니라 자동화는 포기하고 있었는데, 반복 확인 작업을 직접 맡길 수 있게 됐습니다.', createdAt: '2026-07-12' },
+  { toolId: 'vuln-report-skill', author: { name: '오세준', dept: '보안진단본부' }, rating: 5, taskType: '문서 작성', impact: 'quality', comment: '보고서 톤이 담당자마다 달랐는데 이제 편차가 없습니다. 고객 문의가 줄었어요.', createdAt: '2026-07-10' },
 ];

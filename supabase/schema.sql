@@ -25,8 +25,7 @@ create table if not exists public.tools (
   mau             integer default 0,
   rating          numeric default 0,
   reviews         integer default 0,
-  saved_hours     integer default 0,
-  gov             integer default 0
+  saved_hours     integer default 0
 );
 
 create table if not exists public.reviews (
@@ -36,9 +35,12 @@ create table if not exists public.reviews (
   author_dept text,
   rating      integer check (rating between 1 and 5),
   task_type   text,
-  before_min  integer,
-  after_min   integer,
-  freq_month  integer,
+  -- 도구가 준 이득의 종류: time | token | quality | possible
+  -- 시간 절감(time)이 아닌 후기는 아래 소요 시간 항목이 비어 있습니다.
+  impact      text default 'time',
+  before_min  integer default 0,
+  after_min   integer default 0,
+  freq_month  integer default 0,
   comment     text,
   created_at  date default current_date
 );

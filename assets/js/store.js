@@ -65,55 +65,47 @@ export async function init() {
 // ── 파생 값 ────────────────────────────────────────────────────────────────
 
 function withDerived(tool) {
-  return { ...tool, gov: govScore(tool) };
+  return { ...tool };
 }
 
 function withReviewDerived(r) {
-  return { ...r, id: r.id || `${r.toolId}-${r.author.name}-${r.createdAt}`, savedMin: savedMinutes(r) };
-}
-
-export function savedMinutes(r) {
-  return Math.max(0, (Number(r.beforeMin) - Number(r.afterMin)) * Number(r.freqMonth));
-}
-
-// 거버넌스 심사 점수(0~100). 시연용으로 도구 특성에서 결정적으로 산출합니다.
-function govScore(tool) {
-  let h = 0;
-  for (const ch of tool.id) h = (h * 31 + ch.charCodeAt(0)) % 997;
-  const base = 68 + (tool.rating - 4.2) * 26;
-  const originBonus = tool.origin === 'build' ? 6 : 0;
-  return clamp(Math.round(base + originBonus + (h % 9)), 60, 100);
-}
-
-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-
-// ── 종합 점수 (사용실적 40 / 동료평가 30 / 거버넌스 30) ────────────────────
-
-export function scoreOf(tool, all = state.tools) {
-  const maxInstalls = Math.max(...all.map((t) => t.installs), 1);
-  const maxMau = Math.max(...all.map((t) => t.mau), 1);
-  const maxSaved = Math.max(...all.map((t) => t.savedHours), 1);
-
-  const usage =
-    (tool.reuse * 0.55 + (tool.mau / maxMau) * 0.30 + (tool.installs / maxInstalls) * 0.15) * 40;
-  const peer = ((tool.rating / 5) * 0.6 + (tool.savedHours / maxSaved) * 0.4) * 30;
-  const gov = (tool.gov / 100) * 30;
-
+  // impact 가 없는 기존 후기는 시간 절감으로 간주합니다.
+  const impact = r.impact || 'time';
   return {
-    usage: round1(usage),
-    peer: round1(peer),
-    gov: round1(gov),
-    total: round1(usage + peer + gov),
+    ...r,
+    impact,
+    id: r.id || `${r.toolId}-${r.author.name}-${r.createdAt}`,
+    savedMin: savedMinutes({ ...r, impact }),
   };
 }
 
-const round1 = (n) => Math.round(n * 10) / 10;
+// 시간 절감 후기만 절감 시간을 산출합니다. 토큰 절감·품질 향상 등은 0.
+export function savedMinutes(r) {
+  if ((r.impact || 'time') !== 'time') return 0;
+  return Math.max(0, (Number(r.beforeMin) - Number(r.afterMin)) * Number(r.freqMonth));
+}
+
+// ── 인기 점수 ──────────────────────────────────────────────────────────────
+// 스토어 차트는 심사 결과가 아니라 실제 사용량을 반영합니다.
+// 설치 수만으로는 "한 번 깔고 안 쓰는" 도구가 올라오므로 재사용률을 함께 봅니다.
+
+export function popularityOf(tool, all = state.tools) {
+  const maxInstalls = Math.max(...all.map((t) => t.installs), 1);
+  const maxMau = Math.max(...all.map((t) => t.mau), 1);
+
+  return (
+    tool.reuse * 0.40 +
+    (tool.mau / maxMau) * 0.35 +
+    (tool.installs / maxInstalls) * 0.15 +
+    (tool.rating / 5) * 0.10
+  );
+}
 
 export function ranking(origin = null) {
   const pool = origin ? state.tools.filter((t) => t.origin === origin) : state.tools;
   return pool
-    .map((t) => ({ tool: t, score: scoreOf(t) }))
-    .sort((a, b) => b.score.total - a.score.total);
+    .map((t) => ({ tool: t, score: popularityOf(t) }))
+    .sort((a, b) => b.score - a.score);
 }
 
 // ── 조회 ───────────────────────────────────────────────────────────────────
@@ -238,7 +230,7 @@ const toRowTool = (t) => ({
   use_case: t.useCase, install_label: t.install.label, install_snippet: t.install.snippet,
   author_name: t.author.name, author_dept: t.author.dept, created_at: t.createdAt,
   installs: t.installs, reuse: t.reuse, mau: t.mau, rating: t.rating,
-  reviews: t.reviews, saved_hours: t.savedHours, gov: t.gov,
+  reviews: t.reviews, saved_hours: t.savedHours,
 });
 
 const fromRowTool = (r) => ({
@@ -247,20 +239,25 @@ const fromRowTool = (r) => ({
   useCase: r.use_case, install: { label: r.install_label, snippet: r.install_snippet },
   author: { name: r.author_name, dept: r.author_dept }, createdAt: r.created_at,
   installs: r.installs, reuse: Number(r.reuse), mau: r.mau, rating: Number(r.rating),
-  reviews: r.reviews, savedHours: r.saved_hours, gov: r.gov,
+  reviews: r.reviews, savedHours: r.saved_hours,
 });
 
 const toRowReview = (r) => ({
   id: r.id, tool_id: r.toolId, author_name: r.author.name, author_dept: r.author.dept,
-  rating: r.rating, task_type: r.taskType, before_min: r.beforeMin, after_min: r.afterMin,
+  rating: r.rating, task_type: r.taskType, impact: r.impact || 'time',
+  before_min: r.beforeMin, after_min: r.afterMin,
   freq_month: r.freqMonth, comment: r.comment, created_at: r.createdAt,
 });
 
 const fromRowReview = (r) => ({
   id: r.id, toolId: r.tool_id, author: { name: r.author_name, dept: r.author_dept },
-  rating: r.rating, taskType: r.task_type, beforeMin: r.before_min, afterMin: r.after_min,
+  rating: r.rating, taskType: r.task_type, impact: r.impact || 'time',
+  beforeMin: r.before_min, afterMin: r.after_min,
   freqMonth: r.freq_month, comment: r.comment, createdAt: r.created_at,
-  savedMin: Math.max(0, (r.before_min - r.after_min) * r.freq_month),
+  savedMin: savedMinutes({
+    impact: r.impact || 'time',
+    beforeMin: r.before_min, afterMin: r.after_min, freqMonth: r.freq_month,
+  }),
 });
 
 // ── 유틸 ───────────────────────────────────────────────────────────────────
