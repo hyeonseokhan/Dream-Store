@@ -14,7 +14,10 @@
       "Bash(ls /Applications/ | grep -iE \"chrome|chromium|edge|brave|firefox\" ; ls \"/Applications/Google Chrome.app/Contents/MacOS/\" 2>/dev/null)",
       "Read(//Applications/**)",
       "Read(//Applications/Google Chrome.app/Contents/MacOS/**)",
-      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-sandbox --virtual-time-budget=4000 --window-size=1440,2400 --screenshot=/private/tmp/claude-502/-Users-toycode-Downloads-idea/80e5d37a-cf1b-4791-a86c-418cf4a85dc5/scratchpad/home.png 'http://localhost:8765/#/')"
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-sandbox --virtual-time-budget=4000 --window-size=1440,2400 --screenshot=/private/tmp/claude-502/-Users-toycode-Downloads-idea/80e5d37a-cf1b-4791-a86c-418cf4a85dc5/scratchpad/home.png 'http://localhost:8765/#/')",
+      "Bash(gh api *)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-sandbox --virtual-time-budget=6000 --window-size=1440,1500 --screenshot=/private/tmp/claude-502/-Users-toycode-Downloads-idea/80e5d37a-cf1b-4791-a86c-418cf4a85dc5/scratchpad/live.png https://hyeonseokhan.github.io/Dream-Store/)",
+      "Bash(pkill -f \"http.server 8765\")"
     ]
   }
 }
