@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+# main 에 푸시될 때마다 정적 사이트를 그대로 배포합니다.
+# 빌드 도구가 없는 순수 정적 사이트라 별도 빌드 단계 없이 업로드만 합니다.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 동시에 하나만. 진행 중인 배포는 취소하지 않고 큐에 둡니다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # 저장소 루트를 그대로 올립니다. 문서·스키마는 사이트에 불필요하지만
+      # 공개 저장소라 이미 열람 가능하므로 별도로 걸러내지 않습니다.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
