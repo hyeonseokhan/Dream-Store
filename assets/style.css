@@ -40,18 +40,10 @@
   --shadow-3: 0 12px 32px rgba(13, 21, 36, .12);
 
   --maxw: 1180px;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ink: #eef2f9; --ink-2: #b4bdcd; --ink-3: #8590a3;
-    --line: #26303f; --line-2: #1e2734;
-    --bg: #0c111a; --surface: #141b26; --surface-2: #101722;
-    --brand-50: #16203a; --brand-100: #1c2b4d; --brand-200: #24386a;
-    --shadow-1: 0 1px 2px rgba(0,0,0,.4);
-    --shadow-2: 0 4px 14px rgba(0,0,0,.4);
-    --shadow-3: 0 12px 32px rgba(0,0,0,.5);
-  }
+  /* 시연 화면이 관람 환경에 따라 달라지지 않도록 밝은 테마로 고정한다.
+     OS 다크 모드에서도 폼 컨트롤·스크롤바까지 밝게 유지된다. */
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -95,10 +87,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .logo { display: flex; align-items: center; gap: 9px; font-weight: 800; letter-spacing: -.02em; }
 .logo-mark { width: 28px; height: 28px; flex: none; object-fit: contain; display: block; }
 .logo-txt { font-size: 18px; line-height: 1.2; white-space: nowrap; }
-/* 다크 모드에서 짙은 남색 로고가 묻히지 않도록 살짝 밝힌다 */
-@media (prefers-color-scheme: dark) {
-  .logo-mark { filter: brightness(1.9) saturate(1.15); }
-}
 
 .nav { display: flex; gap: 4px; margin-left: auto; }
 .nav a {
@@ -334,7 +322,6 @@ select:focus, input:focus, textarea:focus {
   padding: 16px 18px; border-radius: var(--radius-s); border-left: 3px solid var(--brand-500);
   background: var(--brand-50); color: var(--ink-2); font-size: 14.5px;
 }
-@media (prefers-color-scheme: dark) { .quote { color: var(--ink); } }
 
 .snip {
   display: flex; align-items: center; gap: 10px; padding: 12px 14px;
@@ -401,10 +388,6 @@ textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
 .calc-v { font-size: 34px; font-weight: 800; color: var(--brand-600); letter-spacing: -.03em; line-height: 1.1; }
 .calc-k { font-size: 13px; font-weight: 700; color: var(--brand-600); }
 .calc-note { font-size: 12.5px; color: var(--ink-2); margin-left: auto; text-align: right; max-width: 260px; }
-@media (prefers-color-scheme: dark) {
-  .calc-v, .calc-k { color: var(--brand-400); }
-  .calc-note { color: var(--ink-2); }
-}
 
 /* ── 인기 차트 ───────────────────────────────────────────────────────── */
 
