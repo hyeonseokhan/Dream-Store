@@ -41,18 +41,6 @@ function toast(msg) {
   el._t = setTimeout(() => el.classList.remove('on'), 2600);
 }
 
-function countUp(node, to, suffix = '') {
-  const dur = 1100;
-  const start = performance.now();
-  const step = (now) => {
-    const p = Math.min(1, (now - start) / dur);
-    const eased = 1 - Math.pow(1 - p, 3);
-    node.textContent = nf(Math.round(to * eased)) + suffix;
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
 // ── 라우터 ─────────────────────────────────────────────────────────────────
 
 function parseRoute() {
@@ -108,11 +96,6 @@ function viewHome() {
          설치하고, 써보고, 후기를 남기세요. 그 후기가 다음 사람의 선택을 돕습니다.</p>
 
       <div class="counter">
-        <div class="kpi kpi-lead" data-icon="⏱">
-          <div class="kpi-k">전사 월 절감 시간</div>
-          <div class="kpi-v"><span id="cnt-hours">0</span><span class="kpi-u">시간</span></div>
-          <div class="kpi-note">업무일 기준 약 ${nf(t.savedDays)}일 · 후기 데이터 집계</div>
-        </div>
         <div class="kpi" data-icon="🧰">
           <div class="kpi-k">등록된 도구</div>
           <div class="kpi-v">${nf(t.tools)}<span class="kpi-u">개</span></div>
@@ -176,11 +159,6 @@ function viewHome() {
   </div>`;
 }
 
-AFTER.home = () => {
-  const node = $('#cnt-hours');
-  if (node) countUp(node, db.totals().savedHours);
-};
-
 function rankRowHtml({ tool }, i) {
   return `
   <div class="rrow" onclick="location.hash='#/tool/${tool.id}'">
@@ -221,7 +199,6 @@ function cardHtml(t) {
     <div class="tfoot">
       <span>${starHtml(t.rating)} <b>${t.rating ? Number(t.rating).toFixed(1) : '–'}</b></span>
       <span>설치 <b>${nf(t.installs)}</b></span>
-      <span class="right">재사용 <b>${Math.round(t.reuse * 100)}%</b></span>
     </div>
   </article>`;
 }

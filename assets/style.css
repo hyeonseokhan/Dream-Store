@@ -213,14 +213,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   font-size: 54px; line-height: 1; opacity: .13;
   pointer-events: none; user-select: none;
 }
-.kpi-lead {
-  flex: 1 1 260px; background: rgba(255,255,255,.21); border-color: rgba(255,255,255,.32);
-}
-.kpi-lead::after { font-size: 70px; right: 14px; opacity: .16; }
 .kpi > * { position: relative; z-index: 1; }
 .kpi-k { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.86); letter-spacing: .01em; }
 .kpi-v { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.25; }
-.kpi-lead .kpi-v { font-size: 40px; color: #ffe08a; }
 .kpi-u { font-size: 14px; font-weight: 700; margin-left: 3px; }
 .kpi-note { font-size: 11.5px; font-weight: 500; color: rgba(255,255,255,.8); }
 
@@ -276,7 +271,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
   border-top: 1px solid var(--line-2); font-size: 13px; color: var(--ink-3);
 }
 .tfoot b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
-.tfoot .right { margin-left: auto; text-align: right; }
 
 /* ── 필터바 ──────────────────────────────────────────────────────────── */
 
@@ -449,7 +443,6 @@ textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
   .detail { grid-template-columns: 1fr; }
   .hero-in { padding: 54px 0 48px; }
   .hero h1 { font-size: 29px; line-height: 1.5; }
-  .kpi-lead .kpi-v { font-size: 33px; }
 }
 @media (max-width: 700px) {
   :root { --gap-sec: 46px; }
