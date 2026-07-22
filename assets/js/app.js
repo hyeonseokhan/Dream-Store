@@ -691,10 +691,11 @@ function viewSubmit() {
           </div>
         </div>
 
-        <div class="fgrid">
+        <div class="fgrid fgrid-tight">
           <div class="frow">
             <label>아이콘</label>
-            <input type="text" id="icon" value="🧰" maxlength="4">
+            <input type="text" id="icon" class="ctl-icon" value="🧰" maxlength="4"
+                   aria-label="도구 아이콘 이모지">
             <span class="hint">이모지 1개</span>
           </div>
           <div class="frow">

@@ -40,6 +40,7 @@
   --shadow-3: 0 12px 32px rgba(13, 21, 36, .12);
 
   --maxw: 1180px;
+  --ctl-h: 40px;   /* 입력·셀렉트 공통 높이 */
 
   /* 시연 화면이 관람 환경에 따라 달라지지 않도록 밝은 테마로 고정한다.
      OS 다크 모드에서도 폼 컨트롤·스크롤바까지 밝게 유지된다. */
@@ -281,10 +282,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .field { display: flex; align-items: center; gap: 7px; }
 .field label { font-size: 12.5px; font-weight: 700; color: var(--ink-3); }
+/* 입력·셀렉트는 높이를 변수 하나로 묶어 어떤 조합이든 같은 라인에 떨어지게 한다.
+   셀렉트는 네이티브 렌더링의 고유 line-height 때문에 padding 만으로는
+   input 과 높이가 어긋나므로, appearance 를 끄고 화살표를 직접 그린다. */
 select, input[type="text"], input[type="number"], textarea {
-  padding: 8px 11px; border-radius: 9px; border: 1px solid var(--line);
-  background: var(--surface-2); font-size: 13.5px; outline: none;
+  border-radius: 9px; border: 1px solid var(--line);
+  background-color: var(--surface-2); font-size: 13.5px; outline: none;
   transition: border-color .15s, box-shadow .15s;
+}
+select, input[type="text"], input[type="number"] {
+  box-sizing: border-box; height: var(--ctl-h);
+  padding: 0 12px; line-height: calc(var(--ctl-h) - 2px);
+}
+textarea { padding: 9px 12px; }
+
+select {
+  appearance: none; -webkit-appearance: none;
+  padding-right: 32px; cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%236b7789' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 11px 8px;
 }
 select:focus, input:focus, textarea:focus {
   border-color: var(--brand-400); box-shadow: 0 0 0 3px var(--brand-50);
@@ -351,11 +369,19 @@ select:focus, input:focus, textarea:focus {
 /* ── 폼 ──────────────────────────────────────────────────────────────── */
 
 .form { display: grid; gap: 18px; }
-.frow { display: grid; gap: 7px; }
-.frow > label { font-size: 13.5px; font-weight: 700; }
+/* align-content: start 가 없으면 힌트가 있는 칸에 맞춰 다른 칸의 행이 늘어나
+   컨트롤이 아래로 밀린다. 라벨·컨트롤이 같은 라인에 오도록 위쪽으로 고정한다. */
+.frow { display: grid; gap: 7px; align-content: start; }
+.frow > label { font-size: 13.5px; font-weight: 700; line-height: 1.4; min-height: 19px; }
 .frow .hint { font-size: 12.5px; color: var(--ink-3); }
 .frow input, .frow select, .frow textarea { width: 100%; }
-.fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.fgrid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px; align-items: start;
+}
+/* 아이콘은 이모지 한 글자뿐이라 최소 폭만 주고, 나머지 둘이 남은 폭을 균등 분할한다. */
+.fgrid-tight { grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1fr); }
+.ctl-icon { text-align: center; font-size: 18px; padding: 0 6px; }
 textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
 
 .picks { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -451,6 +477,8 @@ textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
   .hdr-in { gap: 12px; }
   .rstat .stars { display: none; }
   .kpi::after { font-size: 44px; }
+  /* 좁은 화면에서는 아이콘 + 유형 두 칸으로 접고, 카테고리는 아래 줄로 내린다 */
+  .fgrid-tight { grid-template-columns: 76px minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
