@@ -229,7 +229,6 @@ function viewStore({ q }) {
     popular: (a, b) => b.installs * (0.5 + b.reuse) - a.installs * (0.5 + a.reuse),
     new: (a, b) => (a.createdAt < b.createdAt ? 1 : -1),
     rating: (a, b) => b.rating - a.rating,
-    saved: (a, b) => b.savedHours - a.savedHours,
   };
   list = [...list].sort(sorters[sort] || sorters.popular);
 
@@ -278,7 +277,7 @@ function viewStore({ q }) {
           <label>정렬</label>
           <select id="f-sort">
             ${opt('popular', '인기순', sort)}${opt('new', '최신순', sort)}
-            ${opt('rating', '평점순', sort)}${opt('saved', '절감 시간순', sort)}
+            ${opt('rating', '평점순', sort)}
           </select>
         </div>
         <span class="count">${list.length}개</span>
