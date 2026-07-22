@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Dream Store · 사내 AI 도구 마켓플레이스 기획 보고</title>
+<meta name="description" content="드림시큐리티 사내 AI 도구 마켓플레이스 기획 보고 자료">
+<link rel="icon" href="assets/favicon.ico" sizes="32x32">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ==========================================================================
+   Dream Store · 발표 자료
+   드림시큐리티 웹 톤 — 맑은 퓨처리즘 / 글래스모피즘 / 일렉트릭 블루
+   ========================================================================== */
+
+:root{
+  --navy-900:#071634; --navy-800:#0b2450; --navy-700:#123166;
+  --blue-600:#0a5bd3; --blue-500:#1173f0; --blue-400:#3b93ff;
+  --sky-400:#4cc2f5;  --sky-300:#7fd8fb;
+  --violet:#6a4bf2;
+
+  --ink:#0d1b33; --ink-2:#3a4c6b; --ink-3:#6e7f9b;
+  --line:#dfe7f3; --line-2:#eef3fa;
+  --bg:#eef3fa; --white:#fff;
+
+  --glass: rgba(255,255,255,.66);
+  --glass-line: rgba(255,255,255,.85);
+  --shadow-s: 0 2px 8px rgba(10,35,80,.06);
+  --shadow-m: 0 10px 30px rgba(10,35,80,.10), 0 2px 6px rgba(10,35,80,.05);
+  --shadow-l: 0 24px 60px rgba(10,35,80,.16);
+
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+          "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:var(--font); color:var(--ink);
+  background:
+    radial-gradient(900px 520px at 12% -8%, #dbe9ff 0%, transparent 60%),
+    radial-gradient(760px 480px at 92% 108%, #e2dcff 0%, transparent 62%),
+    linear-gradient(168deg,#f6f9ff 0%, var(--bg) 100%);
+  display:grid; place-items:center; overflow:hidden;
+  -webkit-font-smoothing:antialiased; word-break:keep-all;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── 무대 ─────────────────────────────────────────────────────────────── */
+
+#stage{
+  position:relative; width:1280px; height:720px; flex:none;
+  transform-origin:center center;
+  border-radius:20px; overflow:hidden;
+  background:var(--white); box-shadow:var(--shadow-l);
+}
+
+.slide{
+  position:absolute; inset:0; padding:58px 68px;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; transform:translateY(10px);
+  transition:opacity .34s ease, transform .34s ease, visibility .34s;
+  background:
+    radial-gradient(760px 420px at 100% -12%, #e7f0ff 0%, transparent 58%),
+    radial-gradient(620px 380px at -6% 112%, #eee9ff 0%, transparent 60%),
+    var(--white);
+}
+.slide.on{opacity:1; visibility:visible; transform:none}
+
+/* 어두운 슬라이드 — 흐름에 리듬을 준다 */
+.slide.dark{
+  color:#eaf1ff;
+  background:
+    radial-gradient(820px 460px at 88% -14%, rgba(76,194,245,.30) 0%, transparent 60%),
+    radial-gradient(680px 420px at 4% 112%, rgba(106,75,242,.36) 0%, transparent 62%),
+    linear-gradient(152deg, var(--navy-900) 0%, var(--navy-800) 52%, #12275c 100%);
+}
+.slide.dark .eyebrow{color:var(--sky-300)}
+.slide.dark h2{color:#fff}
+.slide.dark .lead,.slide.dark p{color:#c2d3ef}
+.slide.dark .glass{
+  background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.20);
+  box-shadow:0 12px 36px rgba(0,0,0,.24);
+}
+.slide.dark .glass h3{color:#fff}
+.slide.dark .glass p,.slide.dark .glass li{color:#c2d3ef}
+.slide.dark .tag{background:rgba(255,255,255,.13); color:#dce8ff; border-color:rgba(255,255,255,.22)}
+
+/* ── 헤더 ─────────────────────────────────────────────────────────────── */
+
+.eyebrow{
+  display:flex; align-items:center; gap:9px;
+  font-size:13px; font-weight:700; letter-spacing:.06em;
+  color:var(--blue-600); text-transform:uppercase; margin-bottom:10px;
+}
+.eyebrow::before{content:''; width:20px; height:2px; border-radius:2px;
+  background:linear-gradient(90deg,var(--blue-500),var(--sky-400))}
+
+h2{margin:0 0 8px; font-size:38px; line-height:1.24; letter-spacing:-.035em; font-weight:800}
+h2 em{font-style:normal; background:linear-gradient(96deg,var(--blue-500),var(--violet));
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.lead{margin:0; font-size:16px; line-height:1.6; color:var(--ink-2); max-width:900px}
+.s-head{margin-bottom:26px; flex:none}
+
+/* ── 글래스 카드 ──────────────────────────────────────────────────────── */
+
+.glass{
+  position:relative; padding:24px 26px; border-radius:18px;
+  background:var(--glass); border:1px solid var(--glass-line);
+  backdrop-filter:blur(14px) saturate(150%);
+  box-shadow:var(--shadow-m);
+}
+.glass.flat{background:rgba(255,255,255,.86)}
+.glass h3{margin:0 0 8px; font-size:18px; letter-spacing:-.02em; font-weight:800}
+.glass p{margin:0; font-size:14.5px; line-height:1.62; color:var(--ink-2)}
+.glass .sub{font-size:13px; color:var(--ink-3); margin-top:auto; padding-top:12px}
+
+.grid{display:grid; gap:16px; flex:1; min-height:0}
+/* 뒤에 콜아웃이 붙는 슬라이드는 카드를 내용 높이로 두고 콜아웃을 바닥에 붙인다 */
+.grid.fit{flex:0 0 auto; margin:auto 0 16px}
+.callout.bot{margin-bottom:auto}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.col{display:flex; flex-direction:column}
+
+/* 아이콘 뱃지 */
+.ico{
+  width:42px; height:42px; border-radius:13px; display:grid; place-items:center;
+  margin-bottom:14px; flex:none;
+  background:linear-gradient(140deg,var(--blue-500),var(--violet));
+  box-shadow:0 6px 18px rgba(17,115,240,.32);
+}
+.ico svg{width:21px; height:21px; stroke:#fff; fill:none; stroke-width:1.5;
+  stroke-linecap:round; stroke-linejoin:round}
+.ico.sky{background:linear-gradient(140deg,var(--sky-400),var(--blue-500));
+  box-shadow:0 6px 18px rgba(76,194,245,.34)}
+.ico.deep{background:linear-gradient(140deg,var(--navy-700),var(--blue-600));
+  box-shadow:0 6px 18px rgba(18,49,102,.3)}
+.ico.sm{width:34px;height:34px;border-radius:11px;margin-bottom:10px}
+.ico.sm svg{width:17px;height:17px}
+
+.num{
+  font-size:12px; font-weight:800; letter-spacing:.04em; color:var(--blue-600);
+  display:flex; align-items:center; gap:7px; margin-bottom:9px;
+}
+.num b{
+  width:22px; height:22px; border-radius:7px; display:grid; place-items:center;
+  background:linear-gradient(140deg,var(--blue-500),var(--violet)); color:#fff; font-size:11px;
+}
+
+.tag{
+  display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:999px;
+  font-size:12px; font-weight:700; background:#eaf2ff; color:var(--blue-600);
+  border:1px solid #d6e6ff;
+}
+.tag.violet{background:#f0ecff; color:var(--violet); border-color:#e0d8ff}
+.tag.sky{background:#e6f7fe; color:#0784b8; border-color:#cfeefc}
+
+ul.ticks{margin:0; padding:0; list-style:none; display:grid; gap:9px}
+ul.ticks li{position:relative; padding-left:22px; font-size:14px; line-height:1.55; color:var(--ink-2)}
+ul.ticks li::before{
+  content:''; position:absolute; left:0; top:7px; width:12px; height:12px; border-radius:50%;
+  background:linear-gradient(140deg,var(--blue-500),var(--sky-400));
+  box-shadow:0 0 0 3px rgba(17,115,240,.13);
+}
+ul.ticks b{color:var(--ink); font-weight:700}
+.slide.dark ul.ticks li{color:#c2d3ef}
+.slide.dark ul.ticks b{color:#fff}
+
+/* ── 표 ───────────────────────────────────────────────────────────────── */
+
+table{width:100%; border-collapse:separate; border-spacing:0; font-size:14px}
+thead th{
+  text-align:left; padding:11px 16px; font-size:12.5px; font-weight:800;
+  color:var(--blue-600); background:#eef4ff; border-bottom:1px solid var(--line);
+  letter-spacing:.01em;
+}
+thead th:first-child{border-radius:12px 0 0 0}
+thead th:last-child{border-radius:0 12px 0 0}
+tbody td{padding:13px 16px; border-bottom:1px solid var(--line-2); color:var(--ink-2); line-height:1.5}
+tbody tr:last-child td{border-bottom:0}
+tbody b{color:var(--ink)}
+.tbl-wrap{border-radius:14px; overflow:hidden; border:1px solid var(--line); background:rgba(255,255,255,.8)}
+
+/* ── 강조 인용 ────────────────────────────────────────────────────────── */
+
+.hero-quote{
+  flex:1; display:flex; flex-direction:column; justify-content:center; gap:24px;
+}
+.hero-quote .mark{
+  font-size:62px; line-height:1; color:var(--sky-400); opacity:.5; font-weight:800;
+}
+.hero-quote q{
+  font-size:36px; line-height:1.46; letter-spacing:-.03em; font-weight:800; quotes:none;
+  max-width:930px;
+}
+.hero-quote .by{font-size:15px; color:var(--sky-300); font-weight:600}
+
+.callout{
+  display:flex; gap:14px; align-items:flex-start; padding:18px 22px; border-radius:15px;
+  background:linear-gradient(120deg, rgba(17,115,240,.08), rgba(106,75,242,.07));
+  border:1px solid rgba(17,115,240,.18);
+}
+.callout svg{width:20px;height:20px;flex:none;stroke:var(--blue-500);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;margin-top:2px}
+.callout p{margin:0; font-size:14px; line-height:1.6; color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.slide.dark .callout{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.2)}
+.slide.dark .callout p{color:#c8d8f2}
+.slide.dark .callout b{color:#fff}
+.slide.dark .callout svg{stroke:var(--sky-300)}
+
+/* ── 표지 / 마무리 ────────────────────────────────────────────────────── */
+
+.cover{justify-content:center; padding:0 78px}
+.cover .brand{display:flex; align-items:center; gap:12px; margin-bottom:34px}
+.cover .brand img{width:26px;height:26px;object-fit:contain}
+.cover .brand .chip{
+  width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  background:rgba(255,255,255,.94); box-shadow:0 6px 20px rgba(0,0,0,.22);
+}
+.cover .brand span{font-size:15px; font-weight:700; letter-spacing:.04em; color:#bcd3f5}
+.cover h1{
+  margin:0 0 18px; font-size:64px; line-height:1.18; letter-spacing:-.045em; font-weight:800; color:#fff;
+}
+.cover h1 em{font-style:normal;
+  background:linear-gradient(96deg,var(--sky-300),#b7a6ff);
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.cover .sub{font-size:19px; color:#c2d5f2; margin:0 0 40px; line-height:1.6}
+.cover .meta{display:flex; gap:10px; flex-wrap:wrap}
+.cover .meta span{
+  padding:8px 16px; border-radius:999px; font-size:13.5px; font-weight:600;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#dbe7fb;
+}
+
+/* ── 지표 바 ──────────────────────────────────────────────────────────── */
+
+.weights{display:flex; height:52px; border-radius:14px; overflow:hidden; box-shadow:var(--shadow-s)}
+.weights div{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  color:#fff; font-weight:800; font-size:14.5px; letter-spacing:-.01em;
+}
+.w1{flex:40; background:linear-gradient(135deg,var(--blue-600),var(--blue-400))}
+.w2{flex:30; background:linear-gradient(135deg,var(--sky-400),#5fd0f7)}
+.w3{flex:30; background:linear-gradient(135deg,var(--violet),#8e79ff)}
+
+.stat{display:flex; align-items:baseline; gap:6px}
+.stat b{font-size:34px; font-weight:800; letter-spacing:-.03em;
+  background:linear-gradient(120deg,var(--blue-500),var(--violet));
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.stat span{font-size:13px; color:var(--ink-3); font-weight:600}
+
+/* 비유 다이어그램 */
+.analogy{display:grid; grid-template-columns:1fr 54px 1fr; align-items:center; gap:0; flex:1}
+.analogy .side{display:flex; flex-direction:column; gap:12px}
+.analogy .arrow{display:grid; place-items:center}
+.analogy .arrow svg{width:26px;height:26px;stroke:var(--blue-400);fill:none;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round}
+.arow{
+  display:flex; align-items:center; gap:14px; padding:16px 20px; border-radius:15px;
+  background:rgba(255,255,255,.72); border:1px solid var(--glass-line); box-shadow:var(--shadow-s);
+}
+.arow .k{font-size:12px; font-weight:700; color:var(--ink-3); width:66px; flex:none}
+.arow .v{font-size:15.5px; font-weight:700; letter-spacing:-.02em}
+.arow.hi{background:linear-gradient(120deg,rgba(17,115,240,.10),rgba(106,75,242,.08));
+  border-color:rgba(17,115,240,.24)}
+.arow.hi .v{color:var(--blue-600)}
+
+/* 상 카드 */
+.award{
+  display:flex; flex-direction:column; gap:8px; padding:18px 18px 16px; border-radius:16px;
+  background:var(--glass); border:1px solid var(--glass-line); box-shadow:var(--shadow-m);
+}
+.award .tt{font-size:15px; font-weight:800; letter-spacing:-.025em; line-height:1.34}
+.award .cr{font-size:12.5px; color:var(--ink-3); line-height:1.5; margin-top:auto}
+
+/* 화면 카드 */
+.screen{
+  display:flex; flex-direction:column; padding:18px; border-radius:16px;
+  background:var(--glass); border:1px solid var(--glass-line); box-shadow:var(--shadow-m);
+}
+.screen .sn{
+  width:26px;height:26px;border-radius:9px;display:grid;place-items:center;margin-bottom:12px;
+  background:linear-gradient(140deg,var(--blue-500),var(--violet));color:#fff;font-size:12px;font-weight:800;
+}
+.screen h4{margin:0 0 6px; font-size:15px; font-weight:800; letter-spacing:-.02em}
+.screen p{margin:0; font-size:12.5px; line-height:1.55; color:var(--ink-2)}
+
+/* 폼 목업 */
+.mock{display:grid; gap:10px}
+.mock .fld{
+  display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:12px;
+  background:rgba(255,255,255,.82); border:1px solid var(--line); font-size:13.5px;
+}
+.mock .fld .lb{font-weight:700; width:150px; flex:none; color:var(--ink)}
+.mock .fld .in{flex:1; color:var(--ink-3)}
+.mock .fld .st{color:#f5a524; letter-spacing:1px}
+
+/* ── 크롬(네비게이션) ─────────────────────────────────────────────────── */
+
+.chrome{position:fixed; z-index:20; font-family:var(--font)}
+#bar{top:0; left:0; right:0; height:3px; background:rgba(11,36,80,.10)}
+#bar i{display:block; height:100%; width:0;
+  background:linear-gradient(90deg,var(--blue-500),var(--sky-400),var(--violet));
+  transition:width .34s ease}
+
+#nav{bottom:20px; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:6px; padding:7px 9px; border-radius:999px;
+  background:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.9);
+  backdrop-filter:blur(14px) saturate(150%); box-shadow:var(--shadow-m);
+  opacity:.32; transition:opacity .25s}
+#nav:hover{opacity:1}
+#nav button{
+  width:32px;height:32px;border:0;border-radius:50%;background:transparent;cursor:pointer;
+  display:grid;place-items:center;color:var(--ink-2);transition:background .15s,color .15s}
+#nav button:hover{background:#eaf1fc;color:var(--blue-600)}
+#nav button svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+#count{font-size:12.5px;font-weight:700;color:var(--ink-2);padding:0 8px;min-width:52px;text-align:center;
+  font-variant-numeric:tabular-nums}
+#hint{position:fixed;bottom:24px;right:24px;font-size:11.5px;color:var(--ink-3);opacity:.62;z-index:20}
+
+/* 목차 오버레이 */
+#toc{
+  position:fixed; inset:0; z-index:40; display:none; padding:44px;
+  background:rgba(7,22,52,.62); backdrop-filter:blur(10px);
+  overflow:auto;
+}
+#toc.on{display:block}
+#toc .box{max-width:940px;margin:0 auto;background:rgba(255,255,255,.96);border-radius:20px;
+  padding:30px 34px;box-shadow:var(--shadow-l)}
+#toc h3{margin:0 0 18px;font-size:19px;letter-spacing:-.02em}
+#toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#toc li{padding:10px 14px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;gap:11px;
+  color:var(--ink-2);transition:background .14s}
+#toc li:hover{background:#eef4ff;color:var(--blue-600)}
+#toc li b{color:var(--blue-600);font-variant-numeric:tabular-nums;min-width:20px}
+
+/* ── 인쇄(PDF 내보내기) ───────────────────────────────────────────────── */
+
+@media print{
+  @page{size:13.333in 7.5in; margin:0}
+  body{background:#fff;display:block;overflow:visible}
+  .chrome,#hint,#toc{display:none !important}
+  #stage{width:1280px;height:auto;transform:none !important;border-radius:0;box-shadow:none;overflow:visible}
+  .slide{position:static !important;opacity:1 !important;visibility:visible !important;
+    transform:none !important;height:720px;page-break-after:always;break-after:page}
+  .slide:last-child{page-break-after:auto;break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- 아이콘 정의 (얇은 라인 픽토그램) -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3.3 3.3 0 0 1 0 6.4M17.5 20a6 6 0 0 0-2-4.4"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9h16l-1 11H5L4 9Z"/><path d="M8.5 9V6.5a3.5 3.5 0 0 1 7 0V9"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.6 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.8l5.9-.8L12 3.6Z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.4 3 8 7 9 4-1 7-4.6 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><rect x="8" y="12" width="3" height="5" rx="1"/><rect x="14" y="8" width="3" height="9" rx="1"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M18.5 15.5 19 17l1.5.5L19 18l-.5 1.5L18 18l-1.5-.5L18 17l.5-1.5Z"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4.5v1A3.5 3.5 0 0 0 8 10.5M17 6h2.5v1A3.5 3.5 0 0 1 16 10.5"/><path d="M12 14v3M9 20h6M10 17h4"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M9.5 9.5v10"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9.5 17.5h5M10 20.5h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M4 8h16"/><path d="m4 8-2.5 5a3 3 0 0 0 5 0L4 8ZM20 8l-2.5 5a3 3 0 0 0 5 0L20 8Z"/></symbol>
+  <symbol id="i-cycle" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-13.7 5.7M4 12a8 8 0 0 1 13.7-5.7"/><path d="M4 17v-4.5h4.5M20 7v4.5h-4.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.5 5.5a4 4 0 0 0 5 5L21 12l-8.5 8.5a2.1 2.1 0 0 1-3-3L18 9"/><path d="M6.5 6.5 3 10l4 4 3.5-3.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+</svg>
+
+<div id="stage">
+
+  <!-- 1 · 표지 -->
+  <section class="slide dark cover">
+    <div class="brand">
+      <span class="chip"><img src="assets/favicon.ico" alt="드림시큐리티"></span>
+      <span>드림시큐리티 · AI추진팀</span>
+    </div>
+    <h1>동료가 만든 AI 도구를 설치하면,<br><em>회사 전체가 빨라집니다.</em></h1>
+    <p class="sub">Dream Store — 사내 AI 도구 마켓플레이스 기획(안)</p>
+    <div class="meta">
+      <span>AI 활용 우수자 시상 프로그램</span>
+      <span>컨셉 시연 · 목업 구현 완료</span>
+      <span>2026. 07. 23</span>
+    </div>
+  </section>
+
+  <!-- 2 · 목차 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">Agenda</div>
+      <h2>오늘 보고드릴 내용</h2>
+    </div>
+    <div class="grid g2" style="align-content:start">
+      <div class="col" style="gap:12px">
+        <div class="glass" style="padding:17px 22px"><div class="num"><b>1</b> 배경</div><p>회장님 지시사항과 실행을 위해 풀어야 할 문제</p></div>
+        <div class="glass" style="padding:17px 22px"><div class="num"><b>2</b> 서비스 개요</div><p>앱스토어 모델을 사내로 — 무엇을 만들 것인가</p></div>
+        <div class="glass" style="padding:17px 22px"><div class="num"><b>3</b> 대상과 가치</div><p>누가 참여하고, 각자 무엇을 얻는가</p></div>
+      </div>
+      <div class="col" style="gap:12px">
+        <div class="glass" style="padding:17px 22px"><div class="num"><b>4</b> 평가 체계</div><p>공정성을 어떻게 담보할 것인가 — 핵심 설계</p></div>
+        <div class="glass" style="padding:17px 22px"><div class="num"><b>5</b> 시상 체계</div><p>어떤 상을, 어떤 근거로 수여할 것인가</p></div>
+        <div class="glass" style="padding:17px 22px"><div class="num"><b>6</b> 구현 현황</div><p>화면 구성과 기술 스택 — 이미 동작하는 목업</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · 배경(지시사항) -->
+  <section class="slide dark">
+    <div class="s-head">
+      <div class="eyebrow">01 · Background</div>
+    </div>
+    <div class="hero-quote">
+      <div class="mark">“</div>
+      <q>AI를 잘 쓰는 임직원에게<br>활용 역량에 따라 성과금 또는 상품을 수여하고 싶다.</q>
+      <div class="by">— 회장님 지시사항</div>
+    </div>
+    <div class="callout" style="flex:none">
+      <svg><use href="#i-bulb"/></svg>
+      <p>이 지시를 실행하려면 <b>두 가지가 먼저 풀려야 합니다.</b> 누가 잘 쓰는지 <b>측정할 방법</b>이 없고,
+         잘 쓰는 사람의 노하우가 <b>개인에 갇혀</b> 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 4 · 문제 정의 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">01 · Problem</div>
+      <h2>지금 상태로는 <em>상을 줄 수가 없습니다</em></h2>
+      <p class="lead">시상을 하려면 근거가 있어야 하고, 근거를 만들려면 노하우가 밖으로 나와야 합니다.</p>
+    </div>
+    <div class="grid g2 fit">
+      <div class="glass col">
+        <div class="ico deep"><svg><use href="#i-target"/></svg></div>
+        <h3>역량을 측정할 방법이 없다</h3>
+        <p>"누가 AI를 잘 쓰는가"를 판단할 객관적 근거가 없습니다.
+           자기 신고나 인상 평가로 상을 주면 반드시 뒷말이 나옵니다.</p>
+        <div class="sub"><span class="tag">해법</span> &nbsp;설치 수 · 재사용률 · 평점이라는 <b>동료 검증 기반 지표</b>로 대체</div>
+      </div>
+      <div class="glass col">
+        <div class="ico deep"><svg><use href="#i-lock"/></svg></div>
+        <h3>노하우가 개인에 갇혀 있다</h3>
+        <p>잘 쓰는 사람의 방법이 그 사람 안에서만 소비됩니다.
+           개인의 성과로 끝나고 조직 역량으로 축적되지 않습니다.</p>
+        <div class="sub"><span class="tag">해법</span> &nbsp;도구 형태로 <b>패키징 → 유통 → 전사 확산</b></div>
+      </div>
+    </div>
+    <div class="callout bot">
+      <svg><use href="#i-spark"/></svg>
+      <p>드림 스토어는 시상을 위한 <b>측정 도구</b>인 동시에,
+         그 측정 과정 자체가 <b>전사 AI 역량 상향 평준화 엔진</b>이 됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 5 · 핵심 비유 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">02 · Concept</div>
+      <h2>AI 에이전트는 <em>스마트폰</em>입니다</h2>
+      <p class="lead">앱을 설치해 스마트폰이 유용해지듯, 도구를 설치해 나의 AI가 강력해집니다.
+         그리고 앱 개발자가 다운로드와 별점으로 평가받듯, 도구를 만든 임직원도 같은 방식으로 평가받고 보상받습니다.</p>
+    </div>
+    <div class="analogy">
+      <div class="side">
+        <div class="arow"><span class="k">기기</span><span class="v">스마트폰</span></div>
+        <div class="arow"><span class="k">확장</span><span class="v">앱 (App)</span></div>
+        <div class="arow"><span class="k">유통</span><span class="v">App Store · Play Store</span></div>
+        <div class="arow"><span class="k">평가</span><span class="v">다운로드 수 · 별점</span></div>
+      </div>
+      <div class="arrow"><svg><use href="#i-arrow"/></svg></div>
+      <div class="side">
+        <div class="arow hi"><span class="k">기기</span><span class="v">AI 에이전트 (Claude · ChatGPT)</span></div>
+        <div class="arow hi"><span class="k">확장</span><span class="v">Skill · MCP · Subagent</span></div>
+        <div class="arow hi"><span class="k">유통</span><span class="v">Dream Store</span></div>
+        <div class="arow hi"><span class="k">평가</span><span class="v">설치 수 · 재사용률 · 별점</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · 타겟 사용자 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">03 · Users</div>
+      <h2>세 개의 역할이 <em>순환하는 구조</em></h2>
+      <p class="lead">모수는 사내 AI 사용 임직원 약 200명 — Claude 약 140명, ChatGPT 약 60명.</p>
+    </div>
+    <div class="grid g3 fit">
+      <div class="glass col">
+        <div class="ico"><svg><use href="#i-tool"/></svg></div>
+        <h3>빌더 <span style="font-size:13px;color:var(--ink-3);font-weight:600">Builder</span></h3>
+        <p>Skill·MCP를 직접 제작해 등록합니다.</p>
+        <div class="sub"><b>얻는 것</b> — 차별화된 AI 응용 역량 증명 → 창작자 시상</div>
+      </div>
+      <div class="glass col">
+        <div class="ico sky"><svg><use href="#i-search"/></svg></div>
+        <h3>스카우트 <span style="font-size:13px;color:var(--ink-3);font-weight:600">Scout</span></h3>
+        <p>검증된 오픈소스 MCP를 발굴·큐레이션해 등록합니다.</p>
+        <div class="sub"><b>얻는 것</b> — 개발 역량 없이도 기여 가능 → 발굴자 시상</div>
+      </div>
+      <div class="glass col">
+        <div class="ico deep"><svg><use href="#i-users"/></svg></div>
+        <h3>유저 <span style="font-size:13px;color:var(--ink-3);font-weight:600">User</span></h3>
+        <p>설치해 쓰고 구조화된 후기를 남깁니다.</p>
+        <div class="sub"><b>얻는 것</b> — 업무 효율 즉시 개선 · 평가 참여로 기여</div>
+      </div>
+    </div>
+    <div class="callout bot">
+      <svg><use href="#i-cycle"/></svg>
+      <p><b>스카우트 트랙이 있기에 비개발 직군(영업·인사·재무·기획)도 첫날부터 참여할 수 있습니다.</b>
+         Skill은 마크다운 문서라 빌더 역시 개발자만의 영역이 아닙니다 —
+         회장님 지시의 취지인 "AI 활용 역량", 즉 코딩 실력이 아닌 <b>응용 능력</b>에 정확히 부합합니다.</p>
+    </div>
+  </section>
+
+  <!-- 7 · 핵심 가치 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">03 · Value</div>
+      <h2>각자가 얻는 것</h2>
+    </div>
+    <div class="grid g3">
+      <div class="glass col">
+        <div class="ico sm"><svg><use href="#i-tool"/></svg></div>
+        <h3>만드는 사람</h3>
+        <p>자신의 AI 활용 노하우를 도구로 만들어 공개하고,
+           "이 업무에 이렇게 써서 효율이 좋아졌다"를 사례로 공유합니다.
+           남과 차별화된 응용력이 <b>측정 가능한 형태로 증명</b>됩니다.</p>
+      </div>
+      <div class="glass col">
+        <div class="ico sm sky"><svg><use href="#i-users"/></svg></div>
+        <h3>쓰는 사람</h3>
+        <p>잘하는 동료의 방법을 <b>설치 한 번으로 그대로 흡수</b>합니다.
+           개인차가 줄고 조직 전체가 상향 평준화됩니다.</p>
+      </div>
+      <div class="glass col">
+        <div class="ico sm deep"><svg><use href="#i-chart"/></svg></div>
+        <h3>회사</h3>
+        <p>전사 AI 활용 수준이 <b>설치·재사용·평가라는 데이터</b>로 집계되고,
+           시상 대상자를 납득 가능한 근거로 선정할 수 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · 등록 대상 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">02 · Catalog</div>
+      <h2>만든 것도, <em>발굴한 것도</em> 등록 대상</h2>
+    </div>
+    <div class="grid g2 fit">
+      <div class="glass col">
+        <span class="tag" style="align-self:flex-start;margin-bottom:12px">🛠 빌더 트랙</span>
+        <h3>자체 제작</h3>
+        <p>본인이 만든 Skill / MCP / Subagent / 프롬프트 템플릿</p>
+      </div>
+      <div class="glass col">
+        <span class="tag sky" style="align-self:flex-start;margin-bottom:12px">🔍 스카우트 트랙</span>
+        <h3>큐레이션</h3>
+        <p>직접 써보고 검증한 <b>오픈소스 MCP · Skill 추천 등록</b></p>
+      </div>
+    </div>
+    <div class="callout bot">
+      <svg><use href="#i-bulb"/></svg>
+      <p>큐레이션을 허용함으로써 <b>오픈 첫날부터 스토어가 채워지고</b>(콜드 스타트 해소),
+         "좋은 도구를 알아보는 눈" 자체를 하나의 역량으로 인정합니다.
+         단, 큐레이션 등록에는 <b>실사용 후기와 사내 적용 사례 기재를 필수</b>로 하여 단순 링크 수집과 구분합니다.</p>
+    </div>
+  </section>
+
+  <!-- 9 · 메타데이터 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">02 · Metadata</div>
+      <h2>등록 시 받는 정보</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:18px;flex:1;min-height:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>값</th></tr></thead>
+          <tbody>
+            <tr><td><b>유형</b></td><td>Skill · MCP · Subagent · 프롬프트</td></tr>
+            <tr><td><b>등록 구분</b></td><td>자체 제작 · 큐레이션</td></tr>
+            <tr><td><b>대상 에이전트</b></td><td>Claude · ChatGPT · 공통</td></tr>
+            <tr><td><b>직무 카테고리</b></td><td>영업 · 인사 · 재무 · 기획 · 개발 · 마케팅 · 공통</td></tr>
+            <tr><td><b>사용 사례</b> <span class="tag" style="margin-left:4px">필수</span></td><td>어떤 업무에 어떻게 썼는지</td></tr>
+            <tr><td><b>설치 가이드</b></td><td>원클릭 복사용 설정 스니펫</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="glass col">
+        <div class="ico sm"><svg><use href="#i-grid"/></svg></div>
+        <h3>카테고리는 직무 기준으로</h3>
+        <p>기술 기준(MCP / Skill)이 아니라 <b>직무 기준</b>으로 노출하는 것이 핵심입니다.</p>
+        <div class="callout" style="margin-top:14px;padding:14px 16px">
+          <svg><use href="#i-spark"/></svg>
+          <p>영업사원은 "MCP"를 찾지 않습니다.<br><b>"영업 업무에 쓸 만한 것"</b>을 찾습니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · 평가 설계 원칙 -->
+  <section class="slide dark">
+    <div class="s-head">
+      <div class="eyebrow">04 · Principle</div>
+    </div>
+    <div class="hero-quote">
+      <q>상금이 걸리는 순간,<br><span style="color:var(--sky-300)">별점은 화폐가 됩니다.</span></q>
+      <p style="font-size:17px;max-width:860px;line-height:1.65">
+        사내는 모수가 작고 서로 아는 사이라 "우리 팀 것 좀 눌러줘"가 쉽게 발생합니다.
+        따라서 단일 지표에 의존하지 않고 <b style="color:#fff">복합 지표 + 거버넌스 심사</b>로 방어합니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 11 · 3층 지표 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">04 · Metrics</div>
+      <h2>3층 평가 체계</h2>
+      <p class="lead">조작이 어려운 지표에 가장 큰 비중을 두고, 거버넌스 심사를 최종 방어막으로 둡니다.</p>
+    </div>
+    <div class="weights" style="margin-bottom:18px">
+      <div class="w1">사용 실적 40%</div>
+      <div class="w2">동료 평가 30%</div>
+      <div class="w3">거버넌스 심사 30%</div>
+    </div>
+    <div class="grid g3 fit">
+      <div class="glass col">
+        <div class="num"><b>①</b> 사용 실적</div>
+        <p>설치 수 · <b>재사용률</b> · 월간 활성 사용자</p>
+        <div class="sub"><span class="tag">조작 난이도 높음</span> &nbsp;신뢰도 최상</div>
+      </div>
+      <div class="glass col">
+        <div class="num"><b>②</b> 동료 평가</div>
+        <p>별점 + 구조화 후기</p>
+        <div class="sub"><span class="tag sky">조작 난이도 낮음</span> &nbsp;보조 지표로 활용</div>
+      </div>
+      <div class="glass col">
+        <div class="num"><b>③</b> 거버넌스 심사</div>
+        <p>운영위원회 적합성 · 독창성 · 확산성 평가</p>
+        <div class="sub"><span class="tag violet">정성 평가</span> &nbsp;최종 방어막</div>
+      </div>
+    </div>
+    <div class="callout bot">
+      <svg><use href="#i-scale"/></svg>
+      <p>메인 지표는 "설치 수"가 아니라 <b>"재사용률"</b>입니다.
+         부탁해서 받은 설치는 재사용률에서 걸러집니다 — <b>한 번 깔고 안 쓰는 도구는 점수가 오르지 않습니다.</b></p>
+    </div>
+  </section>
+
+  <!-- 12 · 거버넌스 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">04 · Governance</div>
+      <h2>거버넌스 위원회</h2>
+      <p class="lead">"왜 저 사람이 받았느냐"는 사후 논란을 사전에 차단하는 장치입니다.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:18px;flex:1;min-height:0">
+      <div class="glass col">
+        <div class="ico sm deep"><svg><use href="#i-users"/></svg></div>
+        <h3>구성</h3>
+        <p>AI 추진 담당 부서 <br>+ 각 본부 대표</p>
+        <div class="sub"><span class="tag">분기 단위 운영</span></div>
+      </div>
+      <div class="glass col">
+        <div class="ico sm"><svg><use href="#i-shield"/></svg></div>
+        <h3>역할</h3>
+        <ul class="ticks" style="margin-top:6px">
+          <li>지표 상위 후보군에 대한 <b>정성 심사</b> — 독창성 / 업무 기여도 / 확산 가능성</li>
+          <li>이상 패턴 <b>검토 및 조정</b> — 단기간 집중 설치, 동일 부서 편중 평가</li>
+          <li>자체 제작 vs 큐레이션 <b>트랙별 균형 조정</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 · 구조화 후기 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">04 · Review</div>
+      <h2>후기는 <em>구조화해서</em> 받습니다</h2>
+      <p class="lead">자유 서술만 받으면 데이터가 남지 않습니다.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:18px;flex:1;min-height:0">
+      <div class="mock">
+        <div class="fld"><span class="lb">별점</span><span class="st">★★★★★</span></div>
+        <div class="fld"><span class="lb">어떤 업무에 사용</span><span class="in">문서작성 / 데이터분석 / 코드 / 고객대응 / 회의·보고</span></div>
+        <div class="fld"><span class="lb">월 사용 빈도</span><span class="in">8 회 / 월</span></div>
+        <div class="fld"><span class="lb">한 줄 사례</span><span class="in">어떤 상황에서 어떻게 도움이 됐는지</span></div>
+      </div>
+      <div class="glass col">
+        <div class="ico sm violet" style="background:linear-gradient(140deg,var(--violet),#8e79ff)"><svg><use href="#i-shield"/></svg></div>
+        <h3>소요 시간은 받지 않습니다</h3>
+        <p><b>도입 전/후 소요 시간은 수집하지 않습니다.</b>
+           자기 신고 기반이라 검증이 불가능하고, 시상과 연결되는 순간 부풀리기 유인이 생기기 때문입니다.</p>
+        <div class="sub">
+          대신 <b>월 사용 빈도</b>가 재사용률의 보조 근거로,
+          <b>업무 유형</b>이 직무별 확산 현황의 근거로 쓰입니다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 · 시상 체계 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">05 · Awards</div>
+      <h2>시상 체계 <span style="font-size:16px;color:var(--ink-3);font-weight:600">(초안 — 채택 후 확정)</span></h2>
+      <p class="lead">사내 시상 관행에 맞춰 가볍고 기억에 남는 문장형으로 이름을 잡았습니다.</p>
+    </div>
+    <div class="grid g5 fit" style="gap:12px">
+      <div class="award">
+        <span class="tag" style="align-self:flex-start">빌더</span>
+        <div class="tt">뚝딱 만들었지만<br>프로페셔널상</div>
+        <div class="cr">자체 제작 도구<br>종합점수 1위</div>
+      </div>
+      <div class="award">
+        <span class="tag sky" style="align-self:flex-start">스카우트</span>
+        <div class="tt">안목이<br>곧 실력이다상</div>
+        <div class="cr">큐레이션 등록<br>종합점수 1위</div>
+      </div>
+      <div class="award">
+        <span class="tag violet" style="align-self:flex-start">확산</span>
+        <div class="tt">우리 회사<br>국민앱상</div>
+        <div class="cr">재사용률 ×<br>활성 사용자</div>
+      </div>
+      <div class="award">
+        <span class="tag" style="align-self:flex-start">만족도</span>
+        <div class="tt">별 다섯 개가<br>아깝지 않상</div>
+        <div class="cr">평균 별점 ×<br>후기 수</div>
+      </div>
+      <div class="award">
+        <span class="tag sky" style="align-self:flex-start">리뷰어</span>
+        <div class="tt">후기<br>요정상</div>
+        <div class="cr">후기 수 ×<br>도움됨 수</div>
+      </div>
+    </div>
+    <div class="callout bot">
+      <svg><use href="#i-trophy"/></svg>
+      <p>리뷰어 시상을 두는 이유 — <b>평가 데이터의 양과 질이 시스템 전체의 신뢰도를 결정</b>하기 때문입니다.
+         주기(분기/반기)와 상금 규모는 아이디어 채택 후 확정합니다.</p>
+    </div>
+  </section>
+
+  <!-- 15 · 화면 구성 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">06 · Screens</div>
+      <h2>화면 구성 <em>— 이미 동작합니다</em></h2>
+      <p class="lead">기획서 그대로 목업을 구현해 배포했습니다. 오늘 실제 화면으로 시연드립니다.</p>
+    </div>
+    <div class="grid g5 fit" style="gap:12px">
+      <div class="screen"><div class="sn">1</div><h4>랜딩 / 홈</h4><p>전사 누적 지표, 이 주의 인기 도구, 신규 등록, 직무별 바로가기</p></div>
+      <div class="screen"><div class="sn">2</div><h4>스토어</h4><p>직무·에이전트·유형별 필터, 정렬(인기/최신/평점), 카드 그리드</p></div>
+      <div class="screen"><div class="sn">3</div><h4>도구 상세</h4><p>소개, 사용 사례, 설치 가이드(원클릭 복사), 후기 목록, 지표 요약</p></div>
+      <div class="screen"><div class="sn">4</div><h4>후기 작성</h4><p>구조화 양식 — 별점 · 업무 유형 · 월 사용 빈도 · 한 줄 사례</p></div>
+      <div class="screen"><div class="sn">5</div><h4>도구 등록</h4><p>메타데이터 입력 · 자체 제작 / 큐레이션 트랙 선택</p></div>
+    </div>
+    <div class="callout bot">
+      <svg><use href="#i-layout"/></svg>
+      <p>시드 데이터로 <b>도구 30개</b>가 이미 채워져 있습니다 —
+         오픈소스 MCP 큐레이션 11개 + 사내 자체 제작 19개.</p>
+    </div>
+  </section>
+
+  <!-- 16 · 기술 스택 -->
+  <section class="slide">
+    <div class="s-head">
+      <div class="eyebrow">06 · Stack</div>
+      <h2>기술 스택 및 배포</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:18px;flex:1;min-height:0">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>영역</th><th>선택</th></tr></thead>
+          <tbody>
+            <tr><td><b>호스팅</b></td><td>GitHub Pages</td></tr>
+            <tr><td><b>백엔드</b></td><td>Supabase — DB · 인증 대용</td></tr>
+            <tr><td><b>프론트</b></td><td>빌드 없는 정적 SPA (해시 라우팅)</td></tr>
+            <tr><td><b>시드 데이터</b></td><td>도구 30개 · 후기 26건 · 기여자 12명</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="glass col">
+        <div class="ico sm deep"><svg><use href="#i-server"/></svg></div>
+        <h3>시연 안정성 우선</h3>
+        <p>화면과 시드 데이터만으로 <b>전체 흐름이 완결</b>되도록 먼저 구성하고,
+           Supabase 연동은 후기 작성·설치 카운트 등 "실제로 동작하는 장면"에 한정해 얹었습니다.</p>
+        <div class="sub"><b>네트워크 문제로 시연이 멈추는 상황을 원천 차단</b>했습니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 · 마무리 -->
+  <section class="slide dark">
+    <div class="s-head">
+      <div class="eyebrow">Summary</div>
+      <h2>정리하면</h2>
+    </div>
+    <div class="grid g3" style="flex:none;margin-bottom:26px">
+      <div class="glass col">
+        <div class="ico sm sky"><svg><use href="#i-store"/></svg></div>
+        <h3>앱스토어 모델을 사내로</h3>
+        <p>동료가 만들고 발굴한 AI 도구를 설치하고 평가하는 사내 마켓플레이스</p>
+      </div>
+      <div class="glass col">
+        <div class="ico sm"><svg><use href="#i-scale"/></svg></div>
+        <h3>공정한 측정 체계</h3>
+        <p>사용 실적 40 · 동료 평가 30 · 거버넌스 심사 30 — 조작을 견디는 설계</p>
+      </div>
+      <div class="glass col">
+        <div class="ico sm deep"><svg><use href="#i-trophy"/></svg></div>
+        <h3>납득 가능한 시상</h3>
+        <p>데이터와 심사가 함께 만든 근거 위에서 수상자를 선정</p>
+      </div>
+    </div>
+    <div class="callout">
+      <svg><use href="#i-arrow"/></svg>
+      <p><b>지금 바로 보실 수 있습니다</b> — hyeonseokhan.github.io/Dream-Store<br>
+         이어서 실제 화면으로 시연드리겠습니다.</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- 크롬 -->
+<div class="chrome" id="bar"><i></i></div>
+<div class="chrome" id="nav">
+  <button id="prev" title="이전 (←)"><svg><use href="#i-left"/></svg></button>
+  <span id="count">1 / 17</span>
+  <button id="next" title="다음 (→)"><svg><use href="#i-right"/></svg></button>
+  <button id="list" title="목차 (G)"><svg><use href="#i-grid"/></svg></button>
+</div>
+<div id="hint">← → 이동 · G 목차 · F 전체화면 · P 인쇄(PDF)</div>
+
+<div id="toc"><div class="box"><h3>목차</h3><ol id="toc-list"></ol></div></div>
+
+<script>
+(() => {
+  const stage  = document.getElementById('stage');
+  const slides = [...document.querySelectorAll('.slide')];
+  const bar    = document.querySelector('#bar i');
+  const count  = document.getElementById('count');
+  const toc    = document.getElementById('toc');
+  const TITLES = ['표지','목차','배경 — 회장님 지시','문제 정의','핵심 비유 — 스마트폰',
+    '타겟 사용자','핵심 가치','등록 대상 도구','등록 메타데이터','평가 설계 원칙',
+    '3층 평가 체계','거버넌스 위원회','구조화 후기 양식','시상 체계','화면 구성',
+    '기술 스택 및 배포','마무리'];
+
+  let i = 0;
+
+  // 16:9 무대를 뷰포트에 맞춰 축소·확대한다 (여백 48px)
+  const fit = () => {
+    const s = Math.min((innerWidth - 48) / 1280, (innerHeight - 48) / 720);
+    stage.style.transform = `scale(${s})`;
+  };
+
+  const show = (n) => {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('on', k === i));
+    bar.style.width = `${((i + 1) / slides.length) * 100}%`;
+    count.textContent = `${i + 1} / ${slides.length}`;
+    location.hash = i + 1;
+  };
+
+  addEventListener('keydown', (e) => {
+    if (toc.classList.contains('on') && e.key !== 'g' && e.key !== 'G') {
+      if (e.key === 'Escape') toc.classList.remove('on');
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+        e.preventDefault(); show(i + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+        e.preventDefault(); show(i - 1); break;
+      case 'Home': show(0); break;
+      case 'End':  show(slides.length - 1); break;
+      case 'g': case 'G': toc.classList.toggle('on'); break;
+      case 'f': case 'F':
+        document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+        break;
+      case 'p': case 'P': print(); break;
+      case 'Escape': toc.classList.remove('on'); break;
+    }
+  });
+
+  document.getElementById('next').onclick = () => show(i + 1);
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.getElementById('list').onclick = () => toc.classList.toggle('on');
+  toc.onclick = (e) => { if (e.target === toc) toc.classList.remove('on'); };
+
+  // 목차
+  const list = document.getElementById('toc-list');
+  list.innerHTML = TITLES.map((t, k) => `<li data-n="${k}"><b>${k + 1}</b>${t}</li>`).join('');
+  list.onclick = (e) => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    show(Number(li.dataset.n));
+    toc.classList.remove('on');
+  };
+
+  // 터치 스와이프
+  let x0 = null;
+  stage.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1));
+    x0 = null;
+  }, { passive: true });
+
+  addEventListener('resize', fit);
+  fit();
+  show(Math.max(0, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+})();
+</script>
+</body>
+</html>
